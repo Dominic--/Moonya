@@ -26,7 +26,7 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 from webqq.webqq import webqq
-from lib import settings
+from lib import settings, weather
 from ai import ai
 
 # Receive message queue & Send message queue
@@ -55,7 +55,8 @@ class rece_msg_thread(threading.Thread):
             self.log.close()
             
             # Call ai to deal with the message
-            self.send_queue.put((msg[2], ai.deal(msg[2])))
+            print msg
+            self.send_queue.put((msg[2], ai.deal(msg[1])))
 
 # Send thread
 class send_msg_thread(threading.Thread):
@@ -88,14 +89,24 @@ class generate_msg_thread(threading.Thread):
 
     def run(self):
         # Just a simple example, say goodnight to dear friends
-        goodnight = True
         while 1:
-            time.sleep(10)
             try:
-                if goodnight and 'CPT' in self.qq.name2id:
-                    self.send_queue.put((str(self.qq.name2id['CPT']), '晚安'))
-                    goodnight = False
+                # friends
+                # [markname, timeZone, zipCode, sleepTime, SayGoodNight, TellWeather]
+                for f in settings.friends:
+                    # GoodNight
+                    if (time.gmtime().tm_hour + f[1]) % 24 == f[3]:
+                        if f[0] in self.qq.name2id and f[4]:
+                            self.send_queue.put((str(self.qq.name2id[f[0]]), '晚安哦~亲'))
+
+                    # Weather
+                    if (time.gmtime().tm_hour + f[1]) % 24 == 9: 
+                        if f[0] in self.qq.name2id and f[5]:
+                            self.send_queue.put((str(self.qq.name2id[f[0]]), weather.tell_weather(f[2])))
+                
+                time.sleep(60 * 31)
             except Exception as e:
+                #print str(e)
                 pass
             
 
