@@ -4,8 +4,8 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 # User should define
-qq = '38910267'
-ps = '3893b5elh'
+qq = '#'
+ps = '#'
 
 # GoodNight
 # [user, timezone, zipcode, sleeptime, saygoodnight, tellweather]
